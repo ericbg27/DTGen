@@ -5,21 +5,28 @@ from colored import stylize
 from PIL import Image, ImageDraw
 
 def ParseCommandLine():
+	global image_arg
+
 	parser = argparse.ArgumentParser()
 	parser.add_argument("size", help="size of the tree to be created", type=int)
-	parser.add_argument("dir", help="directory for which the tree will be created")
-	parser.add_argument("image_dir", help="directory in which tree image will be saved")
-	args = parser.parse_args()
+	parser.add_argument("dir", help="Directory for which the tree will be created")
+	parser.add_argument('-i', "--image", help="Variable that defines if an image will be created [y or n]", default="n")
+	args = parser.parse_known_args()
 
-	if args.size < 1:
+	if args[0].size < 1:
 		print("Size must be at least 1. Finishing execution...")
 		return
 
-	if not os.path.isdir(args.dir):
+	if not os.path.isdir(args[0].dir):
 		print("Not a valid directory. Finishing execution...")
 		return
 	else:
-		os.chdir(args.dir)
+		os.chdir(args[0].dir)
+
+	if args[0].image.lower() == "y":
+		image_dir_parser = argparse.ArgumentParser()
+		image_dir_parser.add_argument('-d', "--image_dir", help="Directory in which tree image will be saved, if desired. [Default: Directory for which tree will be created]", default=os.getcwd())
+		image_arg = image_dir_parser.parse_known_args()[0].image_dir
 
 	return args
 
@@ -170,9 +177,11 @@ def DrawTree(image_name):
 	print("Tree image created at: " + image_name)
 
 if __name__ == "__main__":	
+	image_arg = ""
+
 	args = ParseCommandLine()
 
-	tree_depth = args.size
+	tree_depth = args[0].size
 	root_dir = os.getcwd()
 
 	
@@ -186,13 +195,6 @@ if __name__ == "__main__":
 
 	dir_name = os.getcwd().split('/')
 
-	image_name = dir_name[-1] + "_DTree.png"
-
-	if args.image_dir[-1] == '/':
-		image_name = args.image_dir + image_name
-	else:
-		image_name = args.image_dir + '/' + image_name
-
 	image_specs = [20,10]
 
 	image_height = 300
@@ -202,4 +204,12 @@ if __name__ == "__main__":
 	
 	PrintTree(tree_depth, dir_dict[root_dir], spacing_counter, root_dir, lengths, counters, image_specs)
 
-	DrawTree(image_name)
+	if args[0].image.lower() == "y":
+		image_name = dir_name[-1] + "_DTree.png"
+
+		if image_arg[-1] == '/':
+			image_name = image_arg + image_name
+		else:
+			image_name = image_arg + '/' + image_name
+
+		DrawTree(image_name)
