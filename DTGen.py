@@ -1,6 +1,7 @@
 import os
 import argparse
 import colored
+from colored import stylize
 
 
 def ParseCommandLine():
@@ -68,8 +69,10 @@ def PrintTree(tree_depth, d, spacing_counter, root_dir):
 				print("|", end='')
 		for i in range(4):
 			print(" ", end='')
-		print("|__ " + entry)
+		if not os.path.isdir(entry):
+			print("|__ " + stylize(entry, colored.fg("green")))
 		if os.path.isdir(entry):
+			print("|__ " + stylize(entry, colored.fg("red")))
 			parent_dir = os.getcwd()
 			os.chdir(entry)
 			if tree_depth != 0:
