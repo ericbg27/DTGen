@@ -51,7 +51,7 @@ def DTGen(tree_depth, parent_dir, dir_dict, childs):
 
 		return dir_dict, childs
 
-def PrintTree(tree_depth, d, spacing_counter, root_dir):
+def PrintTree(tree_depth, d, spacing_counter, root_dir, l, c):
 	current = os.getcwd()
 	spacing_counter = spacing_counter + 4
 
@@ -60,13 +60,18 @@ def PrintTree(tree_depth, d, spacing_counter, root_dir):
 	for j, entry in enumerate(d):
 		if os.getcwd() != root_dir:
 			i = 0
-			if j < len(d) - 1:
-				while i < spacing_counter - 4:
-					if i % 4 == 0 and i != 0:
+			while i < spacing_counter - 4:
+				if i % 4 == 0 and i != 0:
+					if l[int(i/4)-1] != c[int(i/4)-1]:
 						print("|", end='')
-					print(" ", end='')
-					i = i + 1
+					else:
+						print(" ", end='')
+				print(" ", end='')
+				i = i + 1
+			if l[len(l)-1] != c[len(c)-1]:
 				print("|", end='')
+			else:
+				print(" ", end='')
 		for i in range(4):
 			print(" ", end='')
 		if not os.path.isdir(entry):
@@ -76,7 +81,14 @@ def PrintTree(tree_depth, d, spacing_counter, root_dir):
 			parent_dir = os.getcwd()
 			os.chdir(entry)
 			if tree_depth != 0:
-				PrintTree(tree_depth, dir_dict[os.getcwd()], spacing_counter, root_dir)
+				size = len(l)
+				l.append(len(d)-1)
+				c.append(j)
+
+				PrintTree(tree_depth, dir_dict[os.getcwd()], spacing_counter, root_dir, l, c)
+				
+				l = l[0:size]
+				c = c[0:size]
 			os.chdir(parent_dir)
 
 	return
@@ -98,5 +110,7 @@ if __name__ == "__main__":
 	print("|__ " + root_dir)
 
 	spacing_counter = 0
+	lengths = []
+	counters = []
 	
-	PrintTree(tree_depth, dir_dict[root_dir], spacing_counter, root_dir)
+	PrintTree(tree_depth, dir_dict[root_dir], spacing_counter, root_dir, lengths, counters)
